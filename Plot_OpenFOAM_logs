@@ -1,0 +1,24 @@
+#! /bin/bash
+module load openmpi/4.1.1
+source /home/urban/OpenFOAM/OpenFOAM-v1912/etc/bashrc
+Start=1
+End=2000
+lineWidth=2
+fileName=$1
+foamLog $fileName >/dev/null
+
+gnuplot -persist <<EOF
+        set logscale y
+        set yrange [:1.6]
+        set format y "10^{%L}"
+        set xlabel "Iteration"
+        set ylabel "Residual"
+        set grid
+        plot "<sed -n -e '${Start},${End}p' logs/Ux_0" title "Ux" with lines lw ${lineWidth} lc rgb 'pink', \
+             "<sed -n -e '${Start},${End}p' logs/Uy_0" title "Uy" with lines lw ${lineWidth} lc rgb 'green', \
+             "<sed -n -e '${Start},${End}p' logs/Uz_0" title "Uz" with lines lw ${lineWidth} lc rgb 'blue', \
+             "<sed -n -e '${Start},${End}p' logs/p_0" title "p" with lines lw ${lineWidth} lc rgb 'red', \
+             "<sed -n -e '${Start},${End}p' logs/k_0" title "k" with lines lw ${lineWidth} , \
+             "<sed -n -e '${Start},${End}p' logs/omega_0" title "omega" with lines lw ${lineWidth}
+
+EOF
